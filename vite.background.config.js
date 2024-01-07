@@ -1,13 +1,13 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { CRX_BACKGROUND_OUT_DIR } from './globalConfig'
+import { AP_BACKGROUND_OUT_DIR } from './globalConfig'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
     // 输出目录
-    outDir: CRX_BACKGROUND_OUT_DIR,
+    outDir: AP_BACKGROUND_OUT_DIR,
     lib: {
       entry: [path.resolve(__dirname, 'src/background/index.js')],
       // background script不支持ES6，因此不用使用es模式，需要改为cjs模式

@@ -1,13 +1,13 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { CRX_CONTENT_OUT_DIR } from './globalConfig'
+import { AP_CONTENT_OUT_DIR } from './globalConfig'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
     // 输出目录
-    outDir: CRX_CONTENT_OUT_DIR,
+    outDir: AP_CONTENT_OUT_DIR,
     lib: {
       entry: [path.resolve(__dirname, 'src/content/index.js')],
       // content script不支持ES6，因此不用使用es模式，需要改为cjs模式

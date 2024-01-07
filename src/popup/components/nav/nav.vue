@@ -1,5 +1,41 @@
+<template>
+  <div class="M-nav">
+    <el-row class="logo-row">
+      <el-col :span="24" class="logo-col">
+        <div class="logo">
+          <img src="@/popup/images/content-icon.png" alt="" />
+          <span style="font-size: 16px; margin-top: 2px">AsyncPlugin</span>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-tabs
+          v-model="path"
+          class="top-nav"
+          @tab-change="onTabChange"
+          stretch
+        >
+          <el-tab-pane label="Setting" name="/setting"></el-tab-pane>
+          <el-tab-pane label="Project" name="/project"></el-tab-pane>
+        </el-tabs>
+        <el-tooltip effect="light" placement="bottom">
+          <template #content>
+            <span @click="logout" style="cursor: pointer">退出登录 </span>
+          </template>
+          <div class="btn-exit" @click="logout">
+            <LogoutIcon></LogoutIcon>
+          </div>
+        </el-tooltip>
+      </el-col>
+    </el-row>
+  </div>
+</template>
+
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import LogoutIcon from '@/common/svg/logoutIcon.vue'
+import { storageHandle } from '@/api/storage'
 // route钩子，返回当前的路由地址
 const route = useRoute()
 // router钩子，返回路由器实例
@@ -12,26 +48,18 @@ const onTabChange = (gotoPath) => {
 }
 
 // 退出到Login页面
-const onExit = () => {
+const logout = async () => {
+  await storageHandle.set('isLogin', 0)
   router.push('/login')
 }
 </script>
 
-<template>
-  <div class="M-nav">
-    <el-tabs v-model="path" class="top-nav" @tab-change="onTabChange" stretch>
-      <el-tab-pane label="Home" name="/home"></el-tab-pane>
-      <el-tab-pane label="Account" name="/account"></el-tab-pane>
-    </el-tabs>
-    <el-button type="primary" class="btn-exit" @click="onExit">退出</el-button>
-  </div>
-</template>
-
 <style scoped lang="scss">
 .M-nav {
-  position: relative;
+  position: fixed;
   z-index: 999;
   background: #fff;
+  width: 580px;
 
   .top-nav {
     margin: 0 auto;
@@ -44,9 +72,39 @@ const onExit = () => {
   }
 
   .btn-exit {
+    cursor: pointer;
     position: absolute;
-    top: 4px;
-    right: 6px;
+    top: 8px;
+    right: 16px;
+  }
+  .logo-row {
+    .logo-col {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      color: white;
+    }
+    height: 40px;
+    background: linear-gradient(
+      90deg,
+      rgb(86, 107, 97) 0%,
+      rgb(85, 195, 162) 19%,
+      #ee5a5a 100%
+    );
+  }
+  .logo {
+    position: absolute;
+    top: 10px;
+    left: 16px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+
+    img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
   }
 }
 </style>

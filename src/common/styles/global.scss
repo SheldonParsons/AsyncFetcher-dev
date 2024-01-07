@@ -1,15 +1,72 @@
-html, body, #root {
-    height: 100%;
-  }
-  
-  .clearfix {
-    &:after {
-      content: ".";
-      display: block;
-      height: 0;
-      clear: both;
-      visibility: hidden;
-    }
+html,
+body,
+#root {
+  height: 100%;
+  font-family: 'Round-Regular';
+}
+
+#app {
+  height: 510px;
+  overflow: scroll;
+}
+// body {
+//   -ms-overflow-style: none; /* IE 和 Edge */
+//   scrollbar-width: none; /* Firefox */
+// }
+
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari 和 Opera */
+}
+:root {
+  --dialog-color: #2f4f4f;
+  --el-color-primary: #009879 !important;
+  --el-color-primary-light-3: #33ac93 !important;
+  --el-color-primary-light-5: #66c0ad !important;
+  --el-color-primary-light-7: #99d4c7 !important;
+  --el-color-primary-light-8: #cce8e1 !important;
+  --el-color-primary-light-9: #e0fcf5 !important;
+  --el-color-primary-dark-2: #007a5f !important;
+  --el-color-success: #009879 !important;
+  --el-color-success-light-3: #33ac93 !important;
+  --el-color-success-light-5: #66c0ad !important;
+  --el-color-success-light-7: #99d4c7 !important;
+  --el-color-success-light-8: #cce8e1 !important;
+  --el-color-success-light-9: #e0fcf5 !important;
+  --AP-el-color-primary: #009879 !important;
+  --AP-el-color-primary-light-3: #33ac93 !important;
+  --AP-el-color-primary-light-5: #66c0ad !important;
+  --AP-el-color-primary-light-7: #99d4c7 !important;
+  --AP-el-color-primary-light-8: #cce8e1 !important;
+  --AP-el-color-primary-light-9: #e0fcf5 !important;
+  --AP-el-color-primary-dark-2: #007a5f !important;
+  --AP-el-color-success: #009879 !important;
+  --AP-el-color-success-light-3: #33ac93 !important;
+  --AP-el-color-success-light-5: #66c0ad !important;
+  --AP-el-color-success-light-7: #99d4c7 !important;
+  --AP-el-color-success-light-8: #cce8e1 !important;
+  --AP-el-color-success-light-9: #e0fcf5 !important;
+  --primary-light: #66c0ad;
+  --primary: #009879;
+  --primary-dark: #009879;
+  --white: #ffffff;
+  --greyLight-1: #e4ebf5;
+  --greyLight-2: #c8d0e7;
+  --greyLight-3: #bec8e4;
+  --greyDark: #9baacf;
+}
+
+.clearfix {
+  &:after {
+    content: '.';
     display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
   }
-  
+  display: block;
+}
+
+@font-face {
+  font-family: 'Round-Regular';
+  src: url('@/common/fonts/Gotham-Rounded-Bold.woff');
+}

@@ -1,7 +1,7 @@
 {
-    "name": "Chrome插件V3",
+    "name": "AsyncPlugin",
     "version": "1.0",
-    "description": "基于Vite的chrome插件V3 Demo",
+    "description": "集成AsyncTest，记录监听请求，分析、补充自动化接口信息。",
     "manifest_version": 3,
     "background": {
       "service_worker": "background.js"
@@ -9,12 +9,19 @@
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
+        "css": ["content.css"],
         "js": ["content.js"],
-        "run_at": "document_end"
+        "run_at": "document_start"
       }
     ],
-    "permissions": ["storage","declarativeContent"],
-    "host_permissions":[],
+    "permissions": [
+      "storage",
+      "webRequest",
+      "declarativeContent",
+      "declarativeNetRequest",
+      "declarativeNetRequestFeedback",
+      "activeTab"],
+    "host_permissions":["*://*/*"],
     "web_accessible_resources": [
       {
         "resources": [ "/images/app.png" ],
@@ -33,7 +40,7 @@
         "48": "/images/app.png",
         "128": "/images/app.png"
       },
-      "default_title": "Vue CRX MV3"
+      "default_title": "AsyncPlugin"
     },
     "icons": {
       "16": "/images/app.png",

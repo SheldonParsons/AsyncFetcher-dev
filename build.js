@@ -1,9 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import {
-  CRX_OUT_DIR,
-  CRX_CONTENT_OUT_DIR,
-  CRX_BACKGROUND_OUT_DIR
+  AP_OUT_DIR,
+  AP_CONTENT_OUT_DIR,
+  AP_BACKGROUND_OUT_DIR
 } from './globalConfig.js'
 
 // 拷贝目录文件
@@ -45,11 +45,11 @@ const deleteDirectory = (dir) => {
   }
 }
 // 源目录：content script临时生成目录
-const contentOutDir = path.resolve(process.cwd(), CRX_CONTENT_OUT_DIR)
+const contentOutDir = path.resolve(process.cwd(), AP_CONTENT_OUT_DIR)
 // 源目录：background script临时生成目录
-const backgroundOutDir = path.resolve(process.cwd(), CRX_BACKGROUND_OUT_DIR)
+const backgroundOutDir = path.resolve(process.cwd(), AP_BACKGROUND_OUT_DIR)
 // 目标目录：Chrome Extension 最终build目录
-const outDir = path.resolve(process.cwd(), CRX_OUT_DIR)
+const outDir = path.resolve(process.cwd(), AP_OUT_DIR)
 // 将复制源目录内的文件和目录全部复制到目标目录中
 copyDirectory(contentOutDir, outDir)
 copyDirectory(backgroundOutDir, outDir)

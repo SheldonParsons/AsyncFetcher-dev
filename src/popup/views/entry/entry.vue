@@ -5,7 +5,7 @@ import Nav from '@/popup/components/nav/nav.vue'
 <template>
   <div class="M-entry">
     <Nav />
-    <router-view />
+    <router-view style="margin-top: 80px" />
   </div>
 </template>
 
