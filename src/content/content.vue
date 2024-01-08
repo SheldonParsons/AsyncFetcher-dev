@@ -31,13 +31,9 @@ onMounted(async () => {
 // content.js
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.greeting === 'switch_listener') {
-    console.log('content flag')
-    console.log(request.flag)
     showListener.value = request.flag
   }
   if (request.greeting === 'get_interface_list') {
-    console.log('get_interface_list')
-    console.log(request.data)
     interfaceList.value = request.data.interfaceList
   }
 

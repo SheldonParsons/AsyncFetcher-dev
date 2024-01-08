@@ -113,8 +113,6 @@ export async function apiRequest(config) {
       config.success && config.success(result)
     })
     .catch((e) => {
-      console.log(e)
-      console.log('in failed')
       // 请求结束的回调
       config.done && config.done()
       // 请求失败的回调
@@ -135,7 +133,6 @@ async function sendRequestToBackground(config) {
         config: config
       },
       (result) => {
-        console.log('in.....')
         // 接收background script的sendResponse方法返回的消数据result
         config.done && config.done()
         if (result.result === 'succ') {

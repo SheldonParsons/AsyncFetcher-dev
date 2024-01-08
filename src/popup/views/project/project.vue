@@ -33,7 +33,6 @@ onMounted(async () => {
     // formData: true,
     headers: await auth_and_get_headers(router),
     success: async (res) => {
-      console.log(res)
       projectList.value = res.results
     },
     fail: () => {}

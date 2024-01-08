@@ -65,7 +65,6 @@ chrome.runtime.onMessage.addListener(async function (
     if (data.method.toLowerCase() !== 'get') {
       axiosConfig['body'] = data.body
     }
-    console.log(axiosConfig)
     console.log(data.url)
     // 发起请求
     await fetch(data.url, axiosConfig)

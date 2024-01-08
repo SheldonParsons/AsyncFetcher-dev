@@ -30,7 +30,9 @@
     >
       <el-col :offset="1" :span="22">
         <el-card shadow="always" class="other-card" @click="showDetail(item)">
-          <span class="other-url">{{ item.url }}</span>
+          <span class="other-url" style="overflow-wrap: break-word">{{
+            item.url
+          }}</span>
           <span class="other-icon">{{ toLocalDate(item.startTime) }}</span>
         </el-card>
       </el-col>
@@ -57,7 +59,9 @@
       <el-row class="other">
         <el-col :offset="1" :span="22">
           <el-card shadow="always" class="other-card">
-            <span class="other-url">{{ currentInterface.url }}</span>
+            <span class="other-url" style="overflow-wrap: break-word">{{
+              currentInterface.url
+            }}</span>
             <span class="other-icon">{{
               toLocalDate(currentInterface.startTime)
             }}</span>
@@ -178,8 +182,6 @@ function toLocalDate(utc) {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.greeting === 'interface_result') {
-    console.log('get body......')
-    console.log(displayFormattedJson(request.data))
     resBody.value = displayFormattedJson(request.data)
     let _headers = {}
     for (let i = 0; i < request.headers.length; i++) {
@@ -193,10 +195,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 })
 
 function sendInterface() {
-  console.log('..........')
-  console.log(currentBody.value)
-  console.log(currentHeaders.value)
-  console.log(JSON.parse(currentHeaders.value))
   chrome.runtime.sendMessage({
     greeting: 'send_interface',
     data: {
@@ -245,22 +243,6 @@ const isVisible = computed({
     emit('onClose')
   }
 })
-
-// 提交
-const submit = () => {
-  console.log('.....')
-  apiRequests.submitByBackground({
-    data: {
-      text: text.value
-    },
-    success: (res) => {
-      console.log(res)
-    },
-    fail: (res) => {
-      alert(res)
-    }
-  })
-}
 
 function changeStatus(statusValue) {
   status.value = statusValue
@@ -358,7 +340,7 @@ function displayFormattedJson(jsonString) {
     text-align: center;
   }
   font-size: 14px;
-  cursor: pointer;
+  // cursor: pointer;
 }
 .AP-dialog {
   cursor: default;

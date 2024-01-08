@@ -102,12 +102,10 @@ onMounted(async () => {
 })
 
 async function switchGlobalListener(flag) {
-  console.log(flag)
   const message = {
     greeting: 'switch_listener',
     flag: flag
   }
-  console.log(message)
   globalListener.value = flag
   await storageHandle.set('global_listener', flag ? 1 : 0)
   sendMessageToAllTabs(message)
