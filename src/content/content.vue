@@ -17,19 +17,34 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getGlobalListenerSwitch } from '@/common/js/utils.js'
+import { getGlobalListenerSwitch, isLogin } from '@/common/js/utils.js'
 import MainDialog from '@/content/components/mainDialog/mainDialog.vue'
+import { sendMessageToBackground } from '@/api/storage'
+const show = ref(false)
 // 对话框显示状态
 const isShowMainDialog = ref(false)
 const showListener = ref(true)
 const interfaceList = ref([])
 
 onMounted(async () => {
-  const result = await getGlobalListenerSwitch()
-  showListener.value = result === 1 ? true : false
+  setTimeout(async () => {
+    const result = await getGlobalListenerSwitch()
+    const isOpenListener = result === 1 ? true : false
+    if (isOpenListener) {
+      await isLogin().then((res) => {
+        showListener.value = res
+      })
+    } else {
+      showListener.value = false
+    }
+  }, 0)
 })
 // content.js
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
   if (request.greeting === 'switch_listener') {
     showListener.value = request.flag
   }
@@ -45,8 +60,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 })
 
 function openInterfaceModel() {
-  chrome.runtime.sendMessage({ greeting: 'get_xhr' })
-  isShowMainDialog.value = true
+  try {
+    sendMessageToBackground({ greeting: 'get_xhr' })
+    isShowMainDialog.value = true
+  } catch (error) {
+    showListener.value = false
+  }
 }
 </script>
 
@@ -57,11 +76,12 @@ function openInterfaceModel() {
     z-index: 9999;
     bottom: 50px;
     right: 20px;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     background: url('images/content-icon.png');
-    background-size: 70% 70%;
     background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     cursor: pointer;
   }
 }

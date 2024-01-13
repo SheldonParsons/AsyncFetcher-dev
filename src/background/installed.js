@@ -1,4 +1,4 @@
-export function installed() {
+export function installed(Listener_All_Interface) {
   // manifest.json的Permissions配置需添加declarativeContent权限
   chrome.runtime.onInstalled.addListener(function () {
     // 默认先禁止Page Action。如果不加这一句，则无法生效下面的规则

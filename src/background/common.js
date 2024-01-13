@@ -95,32 +95,78 @@ export function listenAllInterface(flag) {
   }
 }
 
-let db
-
 export async function openDB() {
   return new Promise((resolve, reject) => {
-    let request = indexedDB.open('AsyncPluginDatabase', 1)
+    let request = indexedDB.open('AsyncFetcherDatabase', 1)
 
     request.onerror = function (event) {
       reject(event.target.error)
     }
 
     request.onsuccess = function (event) {
-      db = event.target.result
-      resolve(db)
+      resolve(event.target.result)
     }
 
     request.onupgradeneeded = function (event) {
       let db = event.target.result
-      db.createObjectStore('AsyncPluginObjectStore', { keyPath: 'id' })
+      db.createObjectStore('AsyncFetcherObjectStore', { keyPath: 'id' })
+    }
+  })
+}
+function containsFiveOrMoreConsecutiveDigits(input) {
+  // 将输入转换为字符串
+  const str = input.toString()
+  return /\d{5,}/.test(str)
+}
+export async function removeAllInterfaceList(db) {
+  return new Promise(async (resolve, reject) => {
+    if (db === undefined) {
+      db = await getDb()
+    }
+
+    // 获取所有打开的标签页 ID
+
+    let transaction = db.transaction(['AsyncFetcherObjectStore'], 'readwrite')
+    let objectStore = transaction.objectStore('AsyncFetcherObjectStore')
+
+    // 打开游标遍历 object store
+    const cursorRequest = objectStore.openCursor()
+    cursorRequest.onsuccess = (e) => {
+      const cursor = e.target.result
+      if (cursor) {
+        // 使用游标的键（即 tabId）进行检查
+        if (containsFiveOrMoreConsecutiveDigits(cursor.key)) {
+          // 获取当前记录
+          const record = cursor.value
+
+          // 更新 interfaceList
+          record.interfaceList = []
+
+          // 将更新后的记录写回 object store
+          objectStore.put(record)
+        }
+
+        // 移动到下一条记录
+        cursor.continue()
+      } else {
+        resolve()
+      }
+    }
+
+    cursorRequest.onerror = (e) => {
+      console.error('Cursor request failed', e)
+      reject(e)
     }
   })
 }
 
-export async function addData(tabId, data) {
-  return new Promise((resolve, reject) => {
-    let transaction = db.transaction(['AsyncPluginObjectStore'], 'readwrite')
-    let objectStore = transaction.objectStore('AsyncPluginObjectStore')
+export async function set(key, value, db) {
+  return new Promise(async (resolve, reject) => {
+    if (db === undefined) {
+      db = await getDb()
+    }
+    let transaction = db.transaction(['AsyncFetcherObjectStore'], 'readwrite')
+    let objectStore = transaction.objectStore('AsyncFetcherObjectStore')
 
     transaction.oncomplete = function () {
       resolve(true)
@@ -129,7 +175,35 @@ export async function addData(tabId, data) {
     transaction.onerror = function (event) {
       reject(event.target.error)
     }
+    // 先尝试从数据库中读取数据
+    let getRequest = objectStore.get(key)
 
+    getRequest.onsuccess = function () {
+      // 然后立即更新数据
+      objectStore.put({ id: key, value: value })
+    }
+
+    getRequest.onerror = function () {
+      objectStore.put({ id: key, value: value })
+    }
+  })
+}
+
+export async function addData(tabId, data, db) {
+  return new Promise(async (resolve, reject) => {
+    if (db === undefined) {
+      db = await getDb()
+    }
+    let transaction = db.transaction(['AsyncFetcherObjectStore'], 'readwrite')
+    let objectStore = transaction.objectStore('AsyncFetcherObjectStore')
+
+    transaction.oncomplete = function () {
+      resolve(true)
+    }
+
+    transaction.onerror = function (event) {
+      reject(event.target.error)
+    }
     // 先尝试从数据库中读取数据
     let getRequest = objectStore.get(tabId)
 
@@ -154,28 +228,61 @@ export async function addData(tabId, data) {
   })
 }
 
-export async function readData(tabId) {
-  return new Promise((resolve, reject) => {
-    let transaction = db.transaction(['AsyncPluginObjectStore'])
-    let objectStore = transaction.objectStore('AsyncPluginObjectStore')
-    let request = objectStore.get(tabId)
+async function getDb() {
+  return openDB().then((res) => {
+    return res
+  })
+}
 
-    request.onerror = function (event) {}
+export async function readData(key, db) {
+  return new Promise(async (resolve, reject) => {
+    if (db === undefined) {
+      db = await getDb()
+    }
+    let transaction = db.transaction(['AsyncFetcherObjectStore'])
+    let objectStore = transaction.objectStore('AsyncFetcherObjectStore')
+    let request = objectStore.get(key)
+
+    request.onerror = function (event) {
+      resolve(event)
+    }
 
     request.onsuccess = function (event) {
       if (request.result) {
         resolve(request.result)
       } else {
-        reject()
+        resolve(undefined)
       }
     }
   })
 }
+export async function removeData(key, db) {
+  return new Promise(async (resolve, reject) => {
+    if (db === undefined) {
+      db = await getDb() // 确保数据库已经打开
+    }
 
-export async function cleanData(tabId) {
-  return new Promise((resolve, reject) => {
-    let transaction = db.transaction(['AsyncPluginObjectStore'], 'readwrite')
-    let objectStore = transaction.objectStore('AsyncPluginObjectStore')
+    let transaction = db.transaction(['AsyncFetcherObjectStore'], 'readwrite')
+    let objectStore = transaction.objectStore('AsyncFetcherObjectStore')
+    let request = objectStore.delete(key) // 使用 delete 方法删除指定 key 的记录
+
+    request.onerror = function (event) {
+      reject(event.target.error) // 如果出错，则拒绝 Promise
+    }
+
+    request.onsuccess = function (event) {
+      resolve(true) // 成功删除后，解析 Promise
+    }
+  })
+}
+
+export async function cleanData(tabId, db) {
+  return new Promise(async (resolve, reject) => {
+    if (db === undefined) {
+      db = await getDb()
+    }
+    let transaction = db.transaction(['AsyncFetcherObjectStore'], 'readwrite')
+    let objectStore = transaction.objectStore('AsyncFetcherObjectStore')
 
     transaction.oncomplete = function () {
       resolve(true)
@@ -184,7 +291,6 @@ export async function cleanData(tabId) {
     transaction.onerror = function (event) {
       reject(event.target.error)
     }
-
     // 先尝试从数据库中读取数据
     let getRequest = objectStore.get(tabId)
 

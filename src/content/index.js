@@ -4,12 +4,15 @@ import '@/content/element-plus.scss'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import Content from '@/content/content.vue'
 import { getGlobalListenerSwitch } from '@/common/js/utils.js'
+import { sendMessageToBackground } from '@/api/storage'
 
 document.addEventListener('listenInterfaceEvent', async function (e) {
-  const result = await getGlobalListenerSwitch()
-  if (result === 1) {
-    chrome.runtime.sendMessage({ greeting: 'add_xhr', http: e.detail })
-  }
+  setTimeout(async () => {
+    const result = await getGlobalListenerSwitch()
+    if (result === 1) {
+      sendMessageToBackground({ greeting: 'add_xhr', http: e.detail })
+    }
+  }, 0)
 })
 
 var s = document.createElement('script')

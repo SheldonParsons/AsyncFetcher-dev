@@ -22,6 +22,20 @@
         ></PluginSwitch>
       </el-col>
     </el-row>
+    <el-row style="margin-top: 30px">
+      <el-col :offset="1" :span="17">
+        <span class="setting-param-title">清空全局监听内容</span>
+      </el-col>
+      <el-col :span="4" style="text-align: end">
+        <el-button
+          style="width: 80%"
+          type="primary"
+          :icon="Promotion"
+          @click.stop="cleanAllInterface"
+          >Clean</el-button
+        >
+      </el-col>
+    </el-row>
     <el-row class="setting-top-title">
       <el-col :offset="1" :span="23">
         <span class="model-title">Information</span>
@@ -58,7 +72,7 @@
         <el-divider />
       </el-col>
     </el-row>
-    <el-row justify="start">
+    <el-row justify="start" style="margin-bottom: 20px">
       <el-col :offset="1" :span="15">
         <span class="setting-param-title">私人秘钥</span>
       </el-col>
@@ -72,8 +86,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { storageHandle } from '@/api/storage'
+import { storageHandle, sendMessageToBackground } from '@/api/storage'
+import { ElMessage } from 'element-plus'
+import { Promotion } from '@element-plus/icons-vue'
 import PluginSwitch from '@/popup/components/normal/plugin_switch.vue'
+import { sendMessageToAllTabs } from '@/common/js/utils.js'
 const router = useRouter()
 
 const globalListener = ref(true)
@@ -82,24 +99,37 @@ const privateKey = ref('暂无')
 const email = ref('暂无')
 
 onMounted(async () => {
-  const isLogin = await storageHandle.get('isLogin')
-  const user = await storageHandle.get('user')
-  if (!user || !isLogin || isLogin === 0) {
-    router.push('/login')
-  } else {
-    const data = JSON.parse(user)
-    username.value = data.nick_name
-    privateKey.value = data.private_key
-    email.value = data.email
-    const global_listener = await storageHandle.get('global_listener')
-    if (global_listener !== undefined) {
-      globalListener.value = global_listener === 1 ? true : false
+  setTimeout(async () => {
+    const isLogin = await storageHandle.get('isLogin')
+    const user = await storageHandle.get('user')
+    if (!user || !isLogin || isLogin === 0) {
+      router.push('/login')
     } else {
-      await storageHandle.set('global_listener', 1)
-      globalListener.value = true
+      const data = JSON.parse(user)
+      username.value = data.nick_name
+      privateKey.value = data.private_key
+      email.value = data.email
+      const global_listener = await storageHandle.get('global_listener')
+      if (global_listener !== undefined && global_listener !== null) {
+        globalListener.value = global_listener === 1 ? true : false
+      } else {
+        await storageHandle.set('global_listener', 1)
+        globalListener.value = true
+      }
     }
-  }
+  }, 0)
 })
+
+function cleanAllInterface() {
+  sendMessageToBackground({
+    greeting: 'clean_all_interface'
+  })
+  ElMessage({
+    message: '已清除所有监听接口',
+    type: 'success',
+    center: true
+  })
+}
 
 async function switchGlobalListener(flag) {
   const message = {
@@ -108,30 +138,12 @@ async function switchGlobalListener(flag) {
   }
   globalListener.value = flag
   await storageHandle.set('global_listener', flag ? 1 : 0)
+  ElMessage({
+    message: flag ? '开启监听' : '关闭监听',
+    type: 'success',
+    center: true
+  })
   sendMessageToAllTabs(message)
-}
-// 向所有标签页发送消息
-function sendMessageToAllTabs(message) {
-  try {
-    chrome.tabs.query({}, function (tabs) {
-      for (let tab of tabs) {
-        if (tab.url && tab.url.startsWith('http')) {
-          // 过滤掉非HTTP/HTTPS页面
-          chrome.tabs.sendMessage(tab.id, message, function (response) {
-            if (chrome.runtime.lastError) {
-              // 忽略错误或做一些记录，但不抛出或显示
-              console.log(
-                `Error sending message to tab ${tab.id}: ${chrome.runtime.lastError.message}`
-              )
-            } else {
-              // 正常处理响应
-              console.log('Response:', response)
-            }
-          })
-        }
-      }
-    })
-  } catch (error) {}
 }
 </script>
 

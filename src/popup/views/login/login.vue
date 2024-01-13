@@ -6,7 +6,7 @@
           <div class="sub-div">
             <h2 class="desc-text-main">
               <span class="login-font g-unselect"
-                >使用您的 AsyncTest 账号登陆 AsyncPlugin</span
+                >使用您的 AsyncTest 账号登陆 AsyncFetcher</span
               >
             </h2>
           </div>
@@ -99,6 +99,7 @@ import { useRouter } from 'vue-router'
 import { apiRequests } from '@/api'
 import { storageHandle } from '@/api/storage'
 import { ElMessage, ElNotification } from 'element-plus'
+import { sendMessageToAllTabs } from '@/common/js/utils.js'
 const router = useRouter()
 const username = ref('')
 const password = ref('')
@@ -129,17 +130,24 @@ const onLogin = () => {
           res.data.password = password.value
           await storageHandle.set('user', JSON.stringify(res.data))
           await storageHandle.set('isLogin', 1)
+          await storageHandle.set('global_listener', 1)
           ElNotification({
             title: '您正在使用AsyncTest账号体系！',
             message: h('i', { style: 'color: #009879' }, '登录成功!'),
             position: 'bottom-right'
           })
+          const message = {
+            greeting: 'switch_listener',
+            flag: true
+          }
+          sendMessageToAllTabs(message)
           router.push('/setting')
         } else if (res.result === 0) {
           ElMessage({
             message: res.msg,
             type: 'warning'
           })
+          await storageHandle.set('global_listener', 0)
           await storageHandle.set('isLogin', 0)
         }
       },

@@ -4,7 +4,7 @@
       <el-col :span="24" class="logo-col">
         <div class="logo">
           <img src="@/popup/images/content-icon.png" alt="" />
-          <span style="font-size: 16px; margin-top: 2px">AsyncPlugin</span>
+          <span style="font-size: 16px; margin-top: 2px">AsyncFetcher</span>
         </div>
       </el-col>
     </el-row>
@@ -36,6 +36,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import LogoutIcon from '@/common/svg/logoutIcon.vue'
 import { storageHandle } from '@/api/storage'
+import { sendMessageToAllTabs } from '@/common/js/utils.js'
 // route钩子，返回当前的路由地址
 const route = useRoute()
 // router钩子，返回路由器实例
@@ -50,6 +51,12 @@ const onTabChange = (gotoPath) => {
 // 退出到Login页面
 const logout = async () => {
   await storageHandle.set('isLogin', 0)
+  await storageHandle.set('global_listener', 0)
+  const message = {
+    greeting: 'switch_listener',
+    flag: false
+  }
+  sendMessageToAllTabs(message)
   router.push('/login')
 }
 </script>

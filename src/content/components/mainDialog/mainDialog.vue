@@ -30,6 +30,7 @@
     >
       <el-col :offset="1" :span="22">
         <el-card shadow="always" class="other-card" @click="showDetail(item)">
+          <span class="other-method">{{ item.method }}</span>
           <span class="other-url" style="overflow-wrap: break-word">{{
             item.url
           }}</span>
@@ -59,6 +60,7 @@
       <el-row class="other">
         <el-col :offset="1" :span="22">
           <el-card shadow="always" class="other-card">
+            <span class="other-method">{{ currentInterface.method }}</span>
             <span class="other-url" style="overflow-wrap: break-word">{{
               currentInterface.url
             }}</span>
@@ -134,8 +136,8 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { apiRequests } from '@/api'
 import { ArrowLeftBold, Promotion } from '@element-plus/icons-vue'
+import { sendMessageToBackground } from '@/api/storage'
 // 接受父组件传递的方法
 const emit = defineEmits(['onClose'])
 // 假设jsonString是你要展示的JSON字符串
@@ -195,7 +197,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 })
 
 function sendInterface() {
-  chrome.runtime.sendMessage({
+  sendMessageToBackground({
     greeting: 'send_interface',
     data: {
       url: currentInterface.value.url,
@@ -207,7 +209,7 @@ function sendInterface() {
 }
 
 function cleanInterface() {
-  chrome.runtime.sendMessage({
+  sendMessageToBackground({
     greeting: 'clean_interface'
   })
 }
@@ -328,6 +330,14 @@ function displayFormattedJson(jsonString) {
 }
 .other-url {
   max-width: 80%;
+  font-size: 14px;
+  font-weight: 500;
+}
+.other-method {
+  font-size: 16px;
+  font-weight: 500;
+  color: #009879;
+  margin-right: 10px;
 }
 </style>
 
@@ -340,7 +350,7 @@ function displayFormattedJson(jsonString) {
     text-align: center;
   }
   font-size: 14px;
-  // cursor: pointer;
+  cursor: pointer;
 }
 .AP-dialog {
   cursor: default;
@@ -353,11 +363,7 @@ function displayFormattedJson(jsonString) {
     padding: 10px 0px 10px 5px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    background-image: linear-gradient(
-      90deg,
-      var(--dialog-color) 70%,
-      var(--dialog-color)
-    );
+    background-image: linear-gradient(90deg, #2f4f4f 70%, #2f4f4f);
     p {
       color: white;
       font-size: 16px;

@@ -1,7 +1,6 @@
 // 引入mock.js，不使用时注释掉，build前要注释掉
 // import '@/mock'
 /*global chrome*/
-
 // 请求服务器地址（开发环境模拟请求地址）
 let API_DOMAIN = '/'
 // 请求服务器地址（正式build环境真实请求地址）

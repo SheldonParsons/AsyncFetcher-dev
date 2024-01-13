@@ -20,7 +20,6 @@
       var myUrl = this._url
       if (myUrl) {
         this._endTime = endTime
-        console.log(myUrl)
         document.dispatchEvent(
           new CustomEvent('listenInterfaceEvent', {
             detail: {

@@ -1,104 +1,107 @@
 /*global chrome*/
 import {
-  listenAllInterface,
   openDB,
   addData,
   readData,
-  cleanData
+  cleanData,
+  removeAllInterfaceList,
+  listenAllInterface,
+  set,
+  removeData
 } from './common'
 import { installed } from './installed'
-import { sendHttpRequest, getGlobalListenerSwitch } from './message'
+import {
+  sendHttpRequest,
+  getGlobalListenerSwitch,
+  resetGlobalParams,
+  sendInterface
+} from './message'
 
 const Listener_All_Interface = false
 
-installed()
+installed(Listener_All_Interface)
 
-openDB()
+var db
 
-listenAllInterface(Listener_All_Interface)
-
-chrome.runtime.onMessage.addListener(async function (
-  request,
-  sender,
-  sendResponse
-) {
-  const { greeting } = request
-  if (greeting === 'apiRequest') {
-    sendHttpRequest(request, sender, sendResponse)
+async function packGetGlobalListenerSwitch(db, sender) {
+  const message = {
+    greeting: 'switch_listener',
+    flag: await getGlobalListenerSwitch(db)
   }
-  if (greeting === 'get_global_listener') {
-    const message = {
-      greeting: 'switch_listener',
-      flag: await getGlobalListenerSwitch()
+  chrome.tabs.sendMessage(sender.tab.id, message)
+}
+
+openDB().then((res) => {
+  db = res
+
+  listenAllInterface(Listener_All_Interface)
+
+  resetGlobalParams(db)
+
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (chrome.runtime.lastError) {
+      console.error('Message failed to send:', chrome.runtime.lastError)
     }
-    chrome.tabs.sendMessage(sender.tab.id, message)
-  }
-  if (greeting === 'add_xhr') {
-    const { http } = request
-    addData(sender.tab.id, http.req)
-  }
-
-  if (greeting === 'get_xhr') {
-    readData(sender.tab.id).then((result) => {
-      const message = {
-        greeting: 'get_interface_list',
-        data: result === undefined ? [] : result
-      }
-      chrome.tabs.sendMessage(sender.tab.id, message)
-    })
-  }
-
-  if (greeting === 'clean_interface') {
-    cleanData(sender.tab.id)
-    const message = {
-      greeting: 'clean_interface_list'
+    const { greeting } = request
+    if (greeting === 'apiRequest') {
+      sendHttpRequest(request, sender, sendResponse)
     }
-    chrome.tabs.sendMessage(sender.tab.id, message)
-  }
-
-  if (greeting === 'send_interface') {
-    const { data } = request
-    let axiosConfig = {
-      method: data.method.toLowerCase(),
-      headers: data.headers
+    if (greeting === 'get_global_listener') {
+      packGetGlobalListenerSwitch(db, sender)
     }
-    if (data.method.toLowerCase() !== 'get') {
-      axiosConfig['body'] = data.body
+    if (greeting === 'add_xhr') {
+      const { http } = request
+      addData(sender.tab.id, http.req, db)
     }
-    console.log(data.url)
-    // 发起请求
-    await fetch(data.url, axiosConfig)
-      .then((res) => {
-        console.log('fetch response')
 
-        // 提取headers
-        const headers = Array.from(res.headers.entries())
-
-        // 提取body
-        const bodyPromise = res.text() // 或者 res.json() 如果你知道响应是JSON格式
-
-        // 返回包含headers和body的对象
-        return Promise.all([bodyPromise, headers])
-      })
-      .then(([body, headers]) => {
-        console.log('fetch result')
-        console.log(body) // 打印body内容
-        console.log(headers) // 打印headers内容
-
+    if (greeting === 'get_xhr') {
+      readData(sender.tab.id, db).then((result) => {
         const message = {
-          greeting: 'interface_result',
-          data: body ? body : '', // 确保body存在
-          headers: headers
+          greeting: 'get_interface_list',
+          data: result === undefined ? [] : result
         }
         chrome.tabs.sendMessage(sender.tab.id, message)
       })
-      .catch((e) => {
-        console.log('in failed')
-        console.log(e)
-      })
-  }
+    }
 
-  if (greeting === 'clean_xhr') {
-  }
-  return true
+    if (greeting === 'clean_all_interface') {
+      removeAllInterfaceList(db)
+    }
+
+    if (greeting === 'clean_interface') {
+      cleanData(sender.tab.id, db)
+      const message = {
+        greeting: 'clean_interface_list'
+      }
+      chrome.tabs.sendMessage(sender.tab.id, message)
+    }
+
+    if (greeting === 'send_interface') {
+      sendInterface(request, sender)
+    }
+
+    if (greeting === 'clean_xhr') {
+    }
+
+    if (greeting === 'set_db') {
+      set(request.key, request.value, db).then((res) => {
+        sendResponse(res)
+      })
+    }
+    if (greeting === 'get_db') {
+      readData(request.key, db).then((res) => {
+        if (res) {
+          sendResponse(res.value)
+        } else {
+          sendResponse(res)
+        }
+      })
+    }
+    if (greeting === 'remove_db') {
+      removeData(request.key, db).then((res) => {
+        sendResponse(res)
+      })
+    }
+    return true
+  })
 })
