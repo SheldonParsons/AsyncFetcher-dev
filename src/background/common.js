@@ -35,63 +35,61 @@ function is_http(protocol) {
   return ['http:', 'https'].some((type) => protocol === type)
 }
 
-export function listenAllInterface(flag) {
-  if (flag) {
-    if (chrome.webRequest && chrome.webRequest.onBeforeRequest) {
-      chrome.webRequest.onBeforeSendHeaders.addListener(
-        function (details) {
-          const url = new URL(details.url)
-          const pathname = url.pathname.toLowerCase()
-          let is_catch = false
-          if (is_http(url.protocol) === false && is_catch === false) {
-            is_catch = true
-          }
-          if (pathname === '/' && is_catch === false) {
-            is_catch = true
-          }
-          if (details.requestHeaders && is_catch === false) {
-            // 遍历请求头部信息
-            for (const header of details.requestHeaders) {
-              if (
-                header.name === 'Accept' &&
-                header.value.indexOf(
-                  'text/html,application/xhtml+xml,application/xml'
-                ) !== -1
-              ) {
-                is_catch = true
-              }
-            }
-          }
-          if (pathname.startsWith('/@') && is_catch === false) {
-            is_catch = true
-          }
-          if (pathname.indexOf('.') !== -1 && is_catch === false) {
-            for (const [type, extensions] of Object.entries(resourceTypes)) {
-              if (isResourceType(pathname, extensions)) {
-                is_catch = true
-                break
-              }
-            }
-          }
-
-          if (is_catch === false) {
-            console.log(url)
-          }
-        },
-        {
-          urls: ['<all_urls>']
-        },
-        ['requestHeaders']
-      )
-      chrome.webRequest.onBeforeRequest.addListener(
-        function (details) {
-          console.log(details.requestBody)
-        },
-        {
-          urls: ['<all_urls>']
+export function listenAllInterface() {
+  if (chrome.webRequest && chrome.webRequest.onBeforeRequest) {
+    chrome.webRequest.onBeforeSendHeaders.addListener(
+      function (details) {
+        const url = new URL(details.url)
+        const pathname = url.pathname.toLowerCase()
+        let is_catch = false
+        if (is_http(url.protocol) === false && is_catch === false) {
+          is_catch = true
         }
-      )
-    }
+        if (pathname === '/' && is_catch === false) {
+          is_catch = true
+        }
+        if (details.requestHeaders && is_catch === false) {
+          // 遍历请求头部信息
+          for (const header of details.requestHeaders) {
+            if (
+              header.name === 'Accept' &&
+              header.value.indexOf(
+                'text/html,application/xhtml+xml,application/xml'
+              ) !== -1
+            ) {
+              is_catch = true
+            }
+          }
+        }
+        if (pathname.startsWith('/@') && is_catch === false) {
+          is_catch = true
+        }
+        if (pathname.indexOf('.') !== -1 && is_catch === false) {
+          for (const [type, extensions] of Object.entries(resourceTypes)) {
+            if (isResourceType(pathname, extensions)) {
+              is_catch = true
+              break
+            }
+          }
+        }
+
+        if (is_catch === false) {
+          console.log(url)
+        }
+      },
+      {
+        urls: ['<all_urls>']
+      },
+      ['requestHeaders']
+    )
+    chrome.webRequest.onBeforeRequest.addListener(
+      function (details) {
+        console.log(details.requestBody)
+      },
+      {
+        urls: ['<all_urls>']
+      }
+    )
   }
 }
 

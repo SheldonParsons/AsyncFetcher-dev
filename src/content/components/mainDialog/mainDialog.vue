@@ -299,6 +299,7 @@ function displayFormattedJson(jsonString) {
   display: none; /* 隐藏滚动条 */
 }
 .jsonOutput {
+  white-space: pre-line;
   -ms-overflow-style: none; /* IE 10+ */
   scrollbar-width: none; /* Firefox */
   overflow: scroll;

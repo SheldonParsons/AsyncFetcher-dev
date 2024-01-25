@@ -37,10 +37,10 @@ export async function sendMessageToBackground(message, maxRetries = 3) {
                 send(nextRetry)
               }, delay)
             } else {
-              console.error(
-                'Exceeded maximum retry attempts. Unable to send message.'
-              )
-              reject(chrome.runtime.lastError)
+              // console.error(
+              //   'Exceeded maximum retry attempts. Unable to send message.'
+              // )
+              // reject(chrome.runtime.lastError)
             }
           } else {
             // 发送成功，处理响应

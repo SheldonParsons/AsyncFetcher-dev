@@ -1,7 +1,7 @@
 {
     "name": "AsyncFetcher Beta",
     "version": "1.0",
-    "description": "集成AsyncTest，记录监听请求，分析、补充自动化接口信息。",
+    "description": "记录XHR/Fetch请求，集成AsyncTest分析、补充Api信息。",
     "manifest_version": 3,
     "background": {
       "service_worker": "background.js"

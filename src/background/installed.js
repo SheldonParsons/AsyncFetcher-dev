@@ -1,8 +1,9 @@
-export function installed(Listener_All_Interface) {
+export function installed(initDB_fn) {
   // manifest.json的Permissions配置需添加declarativeContent权限
   chrome.runtime.onInstalled.addListener(function () {
     // 默认先禁止Page Action。如果不加这一句，则无法生效下面的规则
     chrome.action.disable()
+    initDB_fn()
     chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
       // 设置规则
       let rule = {
