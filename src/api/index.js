@@ -5,8 +5,8 @@
 let API_DOMAIN = '/'
 // 请求服务器地址（正式build环境真实请求地址）
 if (import.meta.env.MODE === 'production') {
-  // API_DOMAIN = 'http://10.2.59.78:6001/'
-  API_DOMAIN = 'http://localhost:6001/'
+  API_DOMAIN = 'http://120.78.204.43:6001/'
+  // API_DOMAIN = 'http://localhost:6001/'
 }
 
 // API请求正常，数据正常
@@ -42,6 +42,16 @@ export const apiRequests = {
     config.url = API_DOMAIN + 'layout/mock/res/'
     config.method = 'post'
     apiFetch(config)
+  },
+  getDownloadFilePath: async (config) => {
+    config.url = `https://365.kdocs.cn/api/v3/office/file/${config.id}/download`
+    config.method = 'get'
+    return await apiFetch(config)
+  },
+  getAllDownloadFilePath: async (config) => {
+    config.url = `https://365.kdocs.cn/3rd/drive/api/v5/groups/${config.group_id}/files/${config.id}/download?isblocks=false&support_checksums=md5,sha1,sha224,sha256,sha384,sha512`
+    config.method = 'get'
+    return await apiFetch(config)
   }
 }
 
@@ -104,7 +114,12 @@ export async function apiRequest(config) {
 
   // 发起请求
   await fetch(config.url, axiosConfig)
-    .then((res) => res.json())
+    .then((res) => {
+      if (!config.global_sender && !res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`)
+      }
+      return res.json()
+    })
     .then((result) => {
       // 请求结束的回调
       config.done && config.done()
@@ -112,10 +127,11 @@ export async function apiRequest(config) {
       config.success && config.success(result)
     })
     .catch((e) => {
+      console.log(e)
       // 请求结束的回调
       config.done && config.done()
       // 请求失败的回调
-      config.fail && config.fail(API_FAILED)
+      config.fail && config.fail(e)
     })
 }
 
@@ -137,7 +153,7 @@ async function sendRequestToBackground(config) {
         if (result.result === 'succ') {
           config.success && config.success(result)
         } else {
-          config.fail && config.fail(result.msg)
+          config.fail && config.fail(result)
         }
       }
     )

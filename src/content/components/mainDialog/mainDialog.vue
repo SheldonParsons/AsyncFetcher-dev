@@ -85,6 +85,7 @@
             class="request jsonOutput"
             rows="10"
             cols="50"
+            placeholder="您可以尝试在此处修改请求内容..."
             v-model="currentBody"
           ></textarea>
         </el-col>
@@ -94,6 +95,7 @@
             class="request jsonOutput"
             rows="10"
             cols="50"
+            placeholder="您可以尝试在此处修改请求内容..."
             :value="currentHeaders"
           ></textarea>
         </el-col>
@@ -299,7 +301,7 @@ function displayFormattedJson(jsonString) {
   display: none; /* 隐藏滚动条 */
 }
 .jsonOutput {
-  white-space: pre-line;
+  white-space: pre;
   -ms-overflow-style: none; /* IE 10+ */
   scrollbar-width: none; /* Firefox */
   overflow: scroll;
@@ -311,7 +313,6 @@ function displayFormattedJson(jsonString) {
   box-sizing: border-box;
   padding: 20px;
   font-family: monospace; /* 更易于阅读的字体 */
-  white-space: pre; /* 保持空格和换行 */
   overflow: auto; /* 添加滚动条 */
   // border: 1px solid;
   cursor: text;

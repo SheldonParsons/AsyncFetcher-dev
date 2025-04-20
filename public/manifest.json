@@ -1,6 +1,6 @@
 {
-    "name": "AsyncFetcher Beta",
-    "version": "1.0",
+    "name": "AsyncFetcher",
+    "version": "1.0.0",
     "description": "记录XHR/Fetch请求，集成AsyncTest分析、补充Api信息。",
     "manifest_version": 3,
     "background": {
@@ -20,7 +20,8 @@
       "declarativeContent",
       "declarativeNetRequest",
       "declarativeNetRequestFeedback",
-      "activeTab"],
+      "activeTab",
+      "notifications"],
     "host_permissions":["*://*/*"],
     "web_accessible_resources": [
       {

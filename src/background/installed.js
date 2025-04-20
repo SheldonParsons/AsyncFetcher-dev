@@ -1,9 +1,14 @@
-export function installed(initDB_fn) {
+import { openDB } from './common'
+import { resetGlobalParams } from './message'
+
+export function installed() {
   // manifest.json的Permissions配置需添加declarativeContent权限
   chrome.runtime.onInstalled.addListener(function () {
     // 默认先禁止Page Action。如果不加这一句，则无法生效下面的规则
     chrome.action.disable()
-    initDB_fn()
+    openDB().then((res) => {
+      resetGlobalParams(res)
+    })
     chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
       // 设置规则
       let rule = {

@@ -1,6 +1,7 @@
 import { apiRequest } from '@/api'
 import { sendMessageToAllTabs } from '@/common/js/utils.js'
-import { removeData, readData, set } from './common'
+import { removeData, readData, set,removeAllData } from './common'
+import { storageHandle } from '@/api/storage'
 
 export function sendHttpRequest(request, sender, sendResponse) {
   // 接收来自content script的消息，request里不允许传递function和file类型的参数
@@ -19,6 +20,7 @@ export function sendHttpRequest(request, sender, sendResponse) {
         msg
       })
     }
+    config.global_sender = true
     // 发起请求
     apiRequest(config)
   })
@@ -39,6 +41,10 @@ export async function resetGlobalParams(db) {
   await removeData('user', db)
   await removeData('isLogin', db)
   await removeData('global_listener', db)
+  await removeAllData(db)
+  await storageHandle.setStorage('fetcherUser', null)
+  await storageHandle.setStorage('fetcherIsLogin', 0)
+  await storageHandle.setStorage('global_listener', 0)
   const message = {
     greeting: 'switch_listener',
     flag: false

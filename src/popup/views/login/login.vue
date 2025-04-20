@@ -115,7 +115,6 @@ onMounted(async () => {
     canSubmitBtn.value = true
   }
 })
-
 const onLogin = () => {
   if (checking()) {
     apiRequests.signIn({
@@ -131,6 +130,12 @@ const onLogin = () => {
           await storageHandle.set('user', JSON.stringify(res.data))
           await storageHandle.set('isLogin', 1)
           await storageHandle.set('global_listener', 1)
+          await storageHandle.setStorage(
+            'fetcherUser',
+            JSON.stringify(res.data)
+          )
+          await storageHandle.setStorage('fetcherIsLogin', 1)
+          await storageHandle.setStorage('global_listener', 1)
           ElNotification({
             title: '您正在使用AsyncTest账号体系！',
             message: h('i', { style: 'color: #009879' }, '登录成功!'),
@@ -149,6 +154,8 @@ const onLogin = () => {
           })
           await storageHandle.set('global_listener', 0)
           await storageHandle.set('isLogin', 0)
+          await storageHandle.setStorage('fetcherIsLogin', 0)
+          await storageHandle.setStorage('global_listener', 0)
         }
       },
       fail: () => {

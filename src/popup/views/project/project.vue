@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-row>
+  <div v-if="!loading">
+    <el-row style="margin-top: 80px">
       <el-col :offset="1" :span="22">
         <el-divider content-position="left">您已加入的项目</el-divider>
       </el-col>
@@ -14,6 +14,13 @@
       </el-col>
     </el-row>
   </div>
+  <div v-if="loading" class="main-loading">
+    <el-row>
+      <el-col :span="24">
+        <NormalLoading></NormalLoading>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script setup>
@@ -23,9 +30,13 @@ import { auth_and_get_headers } from '@/common/js/utils.js'
 import SenderIcon from '@/common/svg/senderIcon.vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { sendMessageToBackground } from '@/api/storage'
+import NormalLoading from '@/popup/components/loading/normal_loading.vue'
 const router = useRouter()
 
 const projectList = ref({})
+
+const loading = ref(true)
 
 onMounted(async () => {
   apiRequests.getOwnerProject({
@@ -33,9 +44,15 @@ onMounted(async () => {
     // formData: true,
     headers: await auth_and_get_headers(router),
     success: async (res) => {
+      loading.value = false
       projectList.value = res.results
     },
-    fail: () => {}
+    fail: (e) => {
+      sendMessageToBackground({
+        greeting: 'clean_user_info'
+      })
+      router.push('/login')
+    }
   })
 })
 

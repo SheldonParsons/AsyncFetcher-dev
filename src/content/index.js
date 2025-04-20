@@ -14,6 +14,7 @@ document.addEventListener('listenInterfaceEvent', async function (e) {
     }
   }, 0)
 })
+sendMessageToBackground({ greeting: 'reset_page', value: 1 })
 
 var s = document.createElement('script')
 s.src = chrome.runtime.getURL('insert.js')

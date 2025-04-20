@@ -70,3 +70,17 @@ body,
   font-family: 'Round-Regular';
   src: url('@/common/fonts/Gotham-Rounded-Bold.woff');
 }
+.el-message {
+  --el-message-bg-color: white;
+  border-radius: 10px;
+  font-family: "Microsoft YaHei";
+  border-color: #d4d4d4;
+  i {
+    svg {
+      color: black;
+    }
+  }
+}
+.el-message .el-message__content {
+  color: black !important;
+}

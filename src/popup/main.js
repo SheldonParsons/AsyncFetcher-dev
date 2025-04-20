@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 // 全局样式
 import ElementPlus from 'element-plus'
-import '@/common/styles/frame.scss'
 import 'element-plus/dist/index.css'
+import '@/common/styles/frame.scss'
 
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import Popup from '@/popup/popup.vue'
