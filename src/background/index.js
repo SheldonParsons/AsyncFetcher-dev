@@ -259,15 +259,15 @@ function addListener() {
 installed();
 initDB();
 
-setInterval(() => {
-  createNotification();
-}, 5000);
-function createNotification() {
-  // 创建通知
-  chrome.notifications.create(`my-notification-${Date.now()}`, {
-    type: "basic",
-    iconUrl: "/images/app.png",
-    title: "提醒",
-    message: "这是一个提醒消息",
-  });
-}
+// setInterval(() => {
+//   createNotification();
+// }, 5000);
+// function createNotification() {
+//   // 创建通知
+//   chrome.notifications.create(`my-notification-${Date.now()}`, {
+//     type: "basic",
+//     iconUrl: "/images/app.png",
+//     title: "提醒",
+//     message: "这是一个提醒消息",
+//   });
+// }
