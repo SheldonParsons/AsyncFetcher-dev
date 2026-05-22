@@ -18,6 +18,7 @@ import {
   getGlobalListenerSwitch,
   resetGlobalParams,
   sendInterface,
+  exportFiles
 } from "./message";
 
 const Listener_All_Interface = true;
@@ -52,6 +53,13 @@ function initDB() {
         } else if (greeting === "add_xhr") {
           const { http } = request;
           if (http) {
+            if (http.req.url.includes("/api/permission/batch_get_attribute")) {
+              console.log("qqdocs keys");
+              console.log(http.req.url);
+              console.log(Object.keys(JSON.parse(http.res.body).result.attribute_info))
+              removeData('-qqdocs_file_list', db)
+              set('-qqdocs_file_list', Object.keys(JSON.parse(http.res.body).result.attribute_info), db);
+            }
             addData(port.sender.tab.id, http.req, db);
           } else {
             console.log(request);
@@ -66,6 +74,33 @@ function initDB() {
           });
         } else if (greeting === "clean_all_interface") {
           removeAllInterfaceList(db);
+        } else if (greeting === 'start_to_download_qq_docs_file') {
+          const port = chrome.runtime.connect();
+          console.log("in show_qq_docs_download_btn");
+          readData("-qqdocs_file_list", db).then((docs_file_list) => {
+            readData("-qqdocs_headers", db).then((docs_headers) => {
+              console.log("------check--------");
+              console.log(docs_file_list);
+              console.log(docs_headers)
+              const handleOneDownload = (url, index, FILE_CODE) => {
+                console.log("有一个文件准备好了，开始下载:", url);
+                const _data = {
+                  type: "download_info",
+                  info: {
+                    count: docs_file_list.value.length,
+                    current: FILE_CODE,
+                    index: index + 1,
+                    url: url,
+                    err: null
+                  },
+                }
+                console.log(_data);
+                port.postMessage(_data);
+              };
+              exportFiles(docs_headers.value.Cookie, docs_file_list.value, handleOneDownload)
+            });
+          });
+
         } else if (greeting === "start_to_download_file") {
           const tabId = request.tabId;
           const port = chrome.runtime.connect();

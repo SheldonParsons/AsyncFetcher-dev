@@ -15,11 +15,8 @@
         <span class="setting-param-title">开启全局接口监听</span>
       </el-col>
       <el-col :span="2">
-        <PluginSwitch
-          @changeSwitch="switchGlobalListener"
-          :isChecked="globalListener"
-          :switchIndex="'switch-global-listener'"
-        ></PluginSwitch>
+        <PluginSwitch @changeSwitch="switchGlobalListener" :isChecked="globalListener"
+          :switchIndex="'switch-global-listener'"></PluginSwitch>
       </el-col>
     </el-row>
     <el-row style="margin-top: 30px">
@@ -27,36 +24,18 @@
         <span class="setting-param-title">清空全局监听内容</span>
       </el-col>
       <el-col :span="4" style="text-align: end">
-        <el-button
-          style="width: 80%"
-          type="primary"
-          :icon="Promotion"
-          @click.stop="cleanAllInterface"
-          >Clean</el-button
-        >
+        <el-button style="width: 80%" type="primary" :icon="Promotion" @click.stop="cleanAllInterface">Clean</el-button>
       </el-col>
     </el-row>
-    <el-row v-if="show_download_btn" style="margin-top: 30px">
-      <el-col
-        :offset="1"
-        :span="17"
-        style="display: flex; flex-direction: column; gap: 5px"
-      >
+    <el-row v-if="show_download_btn || show_qq_docs_download_btn" style="margin-top: 30px">
+      <el-col :offset="1" :span="17" style="display: flex; flex-direction: column; gap: 5px">
         <span class="setting-param-title">获取下载文件URL</span>
-        <span
-          >总文件数：{{ all_download_count }} ，已下载：{{
-            downloaded_count
-          }}。请不要关闭该窗口！</span
-        >
+        <span>总文件数：{{ all_download_count }} ，已下载：{{
+          downloaded_count
+        }}。请不要关闭该窗口！</span>
       </el-col>
       <el-col :span="4" style="text-align: end">
-        <el-button
-          style="width: 80%"
-          type="primary"
-          :icon="Promotion"
-          @click.stop="getDownloadFileUrl"
-          >获取</el-button
-        >
+        <el-button style="width: 80%" type="primary" :icon="Promotion" @click.stop="getDownloadFileUrl">获取</el-button>
       </el-col>
     </el-row>
     <el-row class="setting-top-title">
@@ -134,6 +113,7 @@ const all_download_count = ref(0);
 const downloaded_count = ref(0);
 const download_url_list = ref([]);
 const show_download_btn = ref(false)
+const show_qq_docs_download_btn = ref(false)
 
 onMounted(async () => {
   await onMountedAction();
@@ -145,6 +125,8 @@ function getCurrentTab() {
     current_tab.value = tabs[0];
     if (current_tab.value.url.startsWith("https://365.kdocs.cn")) {
       show_download_btn.value = true
+    } else if (current_tab.value.url.includes("docs.qq.com")) {
+      show_qq_docs_download_btn.value = true
     }
   });
 }
@@ -201,10 +183,18 @@ function startToDownloadFile() {
   all_download_count.value = 0
   downloaded_count.value = 0
   download_url_list.value = []
-  sendMessageToBackground({
-    greeting: "start_to_download_file",
-    tabId: current_tab.value.id,
-  });
+  if (show_download_btn.value === true) {
+    sendMessageToBackground({
+      greeting: "start_to_download_file",
+      tabId: current_tab.value.id,
+    });
+  } else if (show_qq_docs_download_btn.value === true) {
+    sendMessageToBackground({
+      greeting: "start_to_download_qq_docs_file",
+      tabId: current_tab.value.id,
+    });
+  }
+
   ElMessage({
     message: "准备开始获取文件下载地址",
     type: "success",
@@ -215,6 +205,8 @@ function startToDownloadFile() {
 chrome.runtime.onConnect.addListener((port) => {
   port.onMessage.addListener((msg) => {
     if (msg.type === "download_info") {
+      console.log("msg..........");
+      console.log(msg);
       if (msg.info.count === -1) {
         ElMessage({
           message: "当前页面没有可下载的文件，请尝试刷新页面。",
@@ -275,6 +267,7 @@ async function switchGlobalListener(flag) {
   font-weight: 500;
   color: gray;
 }
+
 .setting-param-desc {
   color: var(--primary);
   font-size: 14px;

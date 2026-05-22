@@ -42,6 +42,7 @@ export function reset_page(tabId) {
   cleanTabDownloadPath(tabId + "-kdoc_download_info");
   cleanTabDownloadPath(tabId + "-kdoc_download_info_headers");
   cleanTabDownloadPath(tabId + "-kdoc_download_info_group_id");
+  cleanTabDownloadPath("-qqdocs_headers")
 }
 export function listenAllInterface() {
   if (chrome.webRequest && chrome.webRequest.onBeforeRequest) {
@@ -59,6 +60,13 @@ export function listenAllInterface() {
               ).value,
             }
             await set(details.tabId + "-kdoc_download_info_headers", headers, db);
+          } else if (details.url.indexOf("/api/permission/batch_get_attribute") !== -1) {
+            const headers = {
+              Cookie: details.requestHeaders.find(
+                (header) => header.name === "Cookie"
+              ).value,
+            }
+            await set("-qqdocs_headers", headers, db);
           } else {
             const fileIdsParam = new URL(details.url).searchParams.get(
               "fileids"
@@ -76,7 +84,8 @@ export function listenAllInterface() {
       {
         urls: [
           "*://365.kdocs.cn/3rd/drive/api/v3/tags/1/files*",
-          "*://365.kdocs.cn/3rd/plus/groups/v1/team/convert-group/status*",
+          "*://plus.kdocs.cn/groups/v1/team/convert-group/status*",
+          "https://*.docs.qq.com/api/permission/batch_get_attribute*"
         ],
       },
       ["requestHeaders", "extraHeaders"]
@@ -189,7 +198,6 @@ export async function removeAllInterfaceList(db) {
     };
 
     cursorRequest.onerror = (e) => {
-      console.error("Cursor request failed", e);
       reject(e);
     };
   });

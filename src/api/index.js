@@ -5,7 +5,7 @@
 let API_DOMAIN = '/'
 // 请求服务器地址（正式build环境真实请求地址）
 if (import.meta.env.MODE === 'production') {
-  API_DOMAIN = 'http://120.78.204.43:6001/'
+  API_DOMAIN = 'https://www.asynctest.com/server/'
   // API_DOMAIN = 'http://localhost:6001/'
 }
 
